@@ -1,1 +1,21 @@
 CloudUI Tracker
+
+
+gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_list 
+{"group_names":["LAB-eai-1-dev","LAB-eai-1-prod"]}
+
+curl http://localhost:5000/group_content -X POST --data '{"name" : "LAB-eai-1-prod"}'
+
+
+
+gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_content -X POST --data '{"name" : "LAB-eai-1-prod"}'
+{"name":"LAB-eai-1-prod","ranges":["146.18.2.2","146.18.3.0/24","146.18.4.5-146.18.4.66"]}
+
+gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_content -X POST --data '{"name" : "LAB-eai-1-dev"}'
+{"name":"LAB-eai-1-dev","ranges":["192.168.1.50","192.168.2.0/24","192.168.3.3-192.168.3.50"]}
+
+gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_content -X POST --data '{"name" : "LAB-eai-1"}'
+{}
+
+gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_list 
+{"group_names":["LAB-eai-1-dev","LAB-eai-1-prod"]}
