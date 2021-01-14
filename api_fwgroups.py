@@ -42,6 +42,9 @@ def group_list():
     return(result_json)
 #end of funtion
 
+"""
+return contents of group names range info
+"""
 @app.route('/group_content', methods=['POST'])
 def group_content():
     #
@@ -68,6 +71,45 @@ def group_content():
 
     return(result_json)
 #end of funtion
+
+"""
+"""
+@app.route('/add_to_group', methods=['POST'])
+def add_to_group():
+    #
+    debug = 1
+
+    garbage = {}
+
+    group_json = {}
+
+    group_2_add_2 = request.get_json(force=True)
+    grp_name = group_2_add_2['name']
+    grp_data = group_2_add_2['ip2add']
+
+    with open('./example1.json', 'r') as f:
+        group_json = json.load(f)
+    
+    for i in range(len(group_json['objects'])):
+        if(group_json['objects'][i]['name'] == grp_name):
+            if(debug == 1):
+                print("-------------------------------------------")
+                print(group_json['objects'][i]['name'])
+                print(group_json['objects'][i]['ranges'])
+                print("-------------------------------------------")
+
+            group_json['objects'][i]['ranges'].append(grp_data)
+
+    #print(grp_name, end=" ")
+    #print(grp_data)
+    print("+++++++++++++++++++++++++++++++++++++++")
+
+    with open('./example1.json', 'w') as F:
+        json.dump(group_json, F)
+
+
+    return(group_json)
+#end of function
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

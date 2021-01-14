@@ -19,3 +19,5 @@ gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_content -X POST --data 
 
 gdunlap@wtc-464460-l:~$ curl http://localhost:5000/group_list 
 {"group_names":["LAB-eai-1-dev","LAB-eai-1-prod"]}
+
+curl http://localhost:5000/add_to_group -X POST --data '{"name" : "LAB-eai-1", "ip2add" : "40.0.0.2"}'
