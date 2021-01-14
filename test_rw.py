@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import json
-
+import uuid
 
 def main():
     debug = 1
@@ -10,6 +10,11 @@ def main():
 
     name_2_find = "LAB-eai-1-dev"
     range_2_add = "40.0.0.1"
+
+    #### uid
+    uuid = uuid.uuid4()
+    print(uuid)
+
 
     with open('./ts.json', 'r') as f:
         json_data = json.load(f)
@@ -35,8 +40,8 @@ def main():
     
     print(json.dumps(json_data))
 
-    with open('./ts.json', 'w') as F:
-        json.dump(json_data, F)
+    #with open('./ts.json', 'w') as F:
+    #    json.dump(json_data, F)
 
 #end of main
 

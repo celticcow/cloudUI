@@ -79,7 +79,7 @@ def add_to_group():
     #
     debug = 1
 
-    garbage = {}
+    #garbage = {}
 
     group_json = {}
 
