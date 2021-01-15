@@ -5,6 +5,7 @@ import uuid
 import time
 import os
 import shutil
+import pathlib
 
 def makefilebackup(file_name):
     print("backup")
@@ -18,7 +19,14 @@ def makefilebackup(file_name):
 
     print(new_file_name)
 
-    shutil.copy(file_name, new_file_name)
+    data1 = pathlib.Path(file_name).parent.absolute()
+
+    f1 = str(data1) + "/" + file_name
+    f2 = str(data1) + "/" + new_file_name
+
+    print(data1)
+
+    shutil.copy(f1, f2)
 #end of makefilebackup
 
 def main():

@@ -3,6 +3,9 @@
 import requests
 import json
 import time
+import os
+import shutil
+import pathlib
 
 from flask import Flask, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
@@ -17,6 +20,31 @@ api information
 
 app = Flask(__name__)
 FlaskJSON(app)
+
+"""
+Helper functions / not api functions
+"""
+def makefilebackup(file_name):
+    print("backup")
+
+    file_parts = file_name.split('.')
+    print(file_parts[0])
+    print(file_parts[1])
+
+    stamp = int(time.time())
+    new_file_name = file_parts[0] + "-" + str(stamp) + "." + file_parts[1]
+
+    print(new_file_name)
+
+    data1 = pathlib.Path(file_name).parent.absolute()
+
+    f1 = str(data1) + "/" + file_name
+    f2 = str(data1) + "/" + new_file_name
+
+    print(data1)
+
+    shutil.copy(f1, f2)
+#end of makefilebackup
 
 """
 return list of groups that are in teh json file 
@@ -103,6 +131,8 @@ def add_to_group():
     #print(grp_name, end=" ")
     #print(grp_data)
     print("+++++++++++++++++++++++++++++++++++++++")
+
+    makefilebackup("example1.json")
 
     with open('./example1.json', 'w') as F:
         json.dump(group_json, F)
