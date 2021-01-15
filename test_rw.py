@@ -2,6 +2,24 @@
 
 import json
 import uuid
+import time
+import os
+import shutil
+
+def makefilebackup(file_name):
+    print("backup")
+
+    file_parts = file_name.split('.')
+    print(file_parts[0])
+    print(file_parts[1])
+
+    stamp = int(time.time())
+    new_file_name = file_parts[0] + "-" + str(stamp) + "." + file_parts[1]
+
+    print(new_file_name)
+
+    shutil.copy(file_name, new_file_name)
+#end of makefilebackup
 
 def main():
     debug = 1
@@ -12,9 +30,11 @@ def main():
     range_2_add = "40.0.0.1"
 
     #### uid
-    uuid = uuid.uuid4()
-    print(uuid)
+    tmp_uid = uuid.uuid4()
+    print(tmp_uid)
 
+    stamp = time.time()
+    print(int(stamp))
 
     with open('./ts.json', 'r') as f:
         json_data = json.load(f)
@@ -40,8 +60,10 @@ def main():
     
     print(json.dumps(json_data))
 
-    #with open('./ts.json', 'w') as F:
-    #    json.dump(json_data, F)
+    makefilebackup('ts.json')
+
+    with open('./ts.json', 'w') as F:
+        json.dump(json_data, F)
 
 #end of main
 
