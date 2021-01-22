@@ -2,7 +2,7 @@
 
 import json
 import requests
-
+import time
 import apifunctions
 
 #remove the InsecureRequestWarning messages
@@ -47,9 +47,44 @@ def build_group_list():
 #end of build_group_list
 
 def check_cma(mds, cma, grp_list):
-    ##
-    #
+    debug = 1
 
+    key = {}
+    with open('apirw-key.json', 'r') as f:
+        key = json.load(f)
+        
+        if(debug == 1):
+            print(key)
+            print(key['api-key'])
+    
+    if(debug == 1):
+        print(mds)
+        print(cma)
+
+    sid = login_api(key['api-key'], mds, cma)
+
+    if(debug == 1):
+        print(sid)
+
+
+    for grp in grp_list:
+        print(grp, end="**\n")
+        if(apifunctions.group_exist(mds, grp, sid)):
+            print("exist")
+            grp_json = {
+                "name" : grp
+            }
+            get_grp_contents_json = apifunctions.api_call(mds, "show-group", grp_json, sid)
+
+            print(json.dumps(get_grp_contents_json))
+            print("******")
+            print(get_grp_contents_json['members'])
+            """
+            need to sort, analyze here
+            """
+
+    time.sleep(5)
+    apifunctions.api_call(mds, "logout", {}, sid)
 
 def main():
     print("")
@@ -68,6 +103,9 @@ def main():
     print("-" * 10)
     print(groups_to_check)
     print("*" * 10)
+
+    check_cma("146.18.96.16", cma_list[0], groups_to_check)
+
 
 #end of main
 
