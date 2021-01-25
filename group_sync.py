@@ -63,8 +63,34 @@ def build_group_list():
     return(group_list)
 #end of build_group_list
 
+def whatami(item):
+    if('/' in item):
+        try:
+            if(ipaddress.ip_network(item)):
+                return("network")
+        except:
+            return("NA")
+
+    elif('-' in item):
+        parts = item.split('-')
+        try:
+            if(ipaddress.ip_address(parts[0]) and ipaddress.ip_address(parts[1])):
+                #is it 0 - 1 in order
+                return("range")
+        except:
+            return("NA")
+    else:
+        try:
+            if(ipaddress.ip_address(item)):
+                return("host")
+        except:
+            return("NA")
+    #catch all
+    return("NA")
+#end of whatami
+
 def check_cma(mds, cma, grp_list):
-    debug = 1
+    debug = 0
 
     key = {}
     with open('apirw-key.json', 'r') as f:
@@ -96,32 +122,36 @@ def check_cma(mds, cma, grp_list):
             }
             get_grp_contents_json = apifunctions.api_call(mds, "show-group", grp_json, sid)
 
-            print(json.dumps(get_grp_contents_json))
-            print("******")
-            print(get_grp_contents_json['members'])
+            if(debug == 1):
+                print(json.dumps(get_grp_contents_json))
+                print("******")
+                print(get_grp_contents_json['members'])
 
             tmp1 = get_grp_contents_json['members']
             #print(type(tmp1))
 
             for mem in get_grp_contents_json['members']:
                 #print(mem)
-                print("_____________________")
+                #print("_____________________")
                 #print(mem['type'])
 
                 if(mem['type'] == "host"):
-                    print(mem['ipv4-address'])
+                    if(debug == 1):
+                        print(mem['ipv4-address'])
                     cma_group_contents_list.append(mem['ipv4-address'])
                 elif(mem['type'] == "network"):
-                    print(mem['subnet4'])
-                    print(mem['subnet-mask'])
-                    print(mem['mask-length4'])
+                    if(debug == 1):
+                        print(mem['subnet4'])
+                        print(mem['subnet-mask'])
+                        print(mem['mask-length4'])
 
                     toadd = mem['subnet4'] + "/" + str(mem['mask-length4'])
                     cma_group_contents_list.append(toadd)
 
                 elif(mem['type'] == "address-range"):
-                    print(mem['ipv4-address-first'])
-                    print(mem['ipv4-address-last'])
+                    if(debug == 1):
+                        print(mem['ipv4-address-first'])
+                        print(mem['ipv4-address-last'])
 
                     toadd = mem['ipv4-address-first'] + "-" + mem['ipv4-address-last']
                     cma_group_contents_list.append(toadd)
@@ -145,20 +175,19 @@ def check_cma(mds, cma, grp_list):
             if(response.status_code == 200):
                 ##got a good reply
                 flask_grp_members = response.json()
-                print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-                print(flask_grp_members)
-                print(flask_grp_members['ranges'])
+                if(debug == 1):
+                    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+                    print(flask_grp_members)
+                    print(flask_grp_members['ranges'])
 
                 json_file_list = flask_grp_members['ranges']
-                print("@@@@@@@")
-                print(type(json_file_list))
-
+               
                 ####
                 # need to compare 
-
-                print("++++++++++++++++++++++++++++")
-                print(cma_group_contents_list)
-                print(json_file_list)
+                if(debug == 1):
+                    print("++++++++++++++++++++++++++++")
+                    print(cma_group_contents_list)
+                    print(json_file_list)
 
                 cma_group_contents_list.sort()
                 json_file_list.sort()
@@ -172,9 +201,13 @@ def check_cma(mds, cma, grp_list):
                 print("File Need :")
                 print(file_need)
                 print("++++++++++++++++++++++++++++")
+
+                for citem in cma_need:
+                    print("--", end="")
+                    print(citem)
             
             else:
-                pass
+                print("error 001 : non 200 response code for group_contents")
 
 
             """
@@ -182,7 +215,7 @@ def check_cma(mds, cma, grp_list):
             """
         else:
             #group does not exist on cma
-            pass
+            print("error 002 : group does not exist on cma ")
     #end of for loop
             
 
