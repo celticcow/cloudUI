@@ -3,6 +3,7 @@
 import json
 import requests
 import time
+import ipaddress
 import apifunctions
 
 #remove the InsecureRequestWarning messages
@@ -105,6 +106,7 @@ def check_cma(mds, cma, grp_list):
         print(cma)
 
     sid = login_api(key['api-key'], mds, cma)
+    #sid = apifunctions.login("gdunlap", "1qazxsw2", mds, cma)
 
     if(debug == 1):
         print(sid)
@@ -200,11 +202,33 @@ def check_cma(mds, cma, grp_list):
                 print(cma_need)
                 print("File Need :")
                 print(file_need)
+                ##
+                # need to direct this some where.
+                ##
+                print("add this somewhere : ")
+                print("add to group : " + grp, end="\n")
+                print(file_need)
                 print("++++++++++++++++++++++++++++")
 
                 for citem in cma_need:
                     print("--", end="")
                     print(citem)
+                    print(whatami(citem))
+                    if(whatami(citem) == "host"):
+                        print("adding")
+                        print(citem)
+                        print(" to the group " + grp)
+                        ####
+                        #apifunctions.add_a_host_with_group()
+                        apifunctions.add_a_host_with_group(mds, "host-"+str(citem), citem, grp, sid)
+                    elif(whatami(citem) == "network"):
+                        parts = citem.split('/')
+                        apifunctions.add_a_network_with_group(mds, "network-"+str(parts[0]), parts[0], apifunctions.calcDottedNetmask(int(parts[1])), grp, sid)
+                    elif(whatami(citem) == "range"):
+                        parts = citem.split('-')
+                        apifunctions.add_a_range_with_group(mds, "range-"+citem, parts[0], parts[1], grp, sid)
+                    else:
+                        print("error 003 : not a host/network/range item")
             
             else:
                 print("error 001 : non 200 response code for group_contents")
@@ -217,10 +241,20 @@ def check_cma(mds, cma, grp_list):
             #group does not exist on cma
             print("error 002 : group does not exist on cma ")
     #end of for loop
-            
 
+    """
+    time to close this work out
+    """
+    #publish
     time.sleep(5)
-    apifunctions.api_call(mds, "logout", {}, sid)
+    publish_results = apifunctions.api_call(mds, "publish", {}, sid)
+
+    print("publish results : " + json.dumps(publish_results))
+
+    time.sleep(20)
+    logout_result = apifunctions.api_call(mds, "logout", {}, sid)
+
+    print("logout results : " + json.dumps(logout_result))
 #end of check cma
 
 def main():
