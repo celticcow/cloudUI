@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import ipaddress
+import smtplib
 
 def ListDiff(li1, li2):
     return(list(list(set(li1)-set(li2)) + list(set(li2)-set(li1))))
@@ -37,6 +38,18 @@ def whatami(item):
     #catch all
     return("NA")
 #end of whatami
+
+def smail(e_message):
+    FROM = 'greg@fedex.com'
+    TO = ["gregory.dunlap@fedex.com"]
+    SUBJECT = "JSON Add Request"
+   
+    message = 'Subject: {}\n\n{}'.format(SUBJECT, e_message)
+
+    server = smtplib.SMTP('mapper.gslb.fedex.com')
+    server.sendmail(FROM, TO, message)
+    
+    server.quit()
 
 def main():
     print("testing only")
@@ -76,6 +89,11 @@ def main():
     print(whatami('192.168.1.1'))
     print(whatami('192.168.1.0/24'))
     print(whatami('192.168.1.5-192.168.4.5'))
+
+    smail("need to add stuff\nand more stuff\nbut not too much")
+    smail("BOOM")
+
+    print("END")
 
 
 if __name__ == "__main__":
