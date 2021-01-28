@@ -3,6 +3,7 @@
 import json
 import requests
 import time
+import smtplib
 import ipaddress
 import apifunctions
 
@@ -36,6 +37,19 @@ List2 has things List1 doesn't
 """
 def ListDiff2(li1, li2):
     return(list(set(li2)-set(li1)))
+
+def smail(e_subject, e_message):
+    FROM = 'greg@fedex.com'
+    TO = ["gregory.dunlap@fedex.com"]
+    SUBJECT = e_subject#"JSON Add Request"
+   
+    message = 'Subject: {}\n\n{}'.format(SUBJECT, e_message)
+
+    server = smtplib.SMTP('mapper.gslb.fedex.com')
+    server.sendmail(FROM, TO, message)
+    
+    server.quit()
+#end of smtp function
 
 def build_group_list():
     group_list = list()
@@ -208,6 +222,11 @@ def check_cma(mds, cma, grp_list):
                 print("add this somewhere : ")
                 print("add to group : " + grp, end="\n")
                 print(file_need)
+
+                ## if the file need is more than 0 meaning it has data to send ... email
+                if(len(file_need) > 0):
+                    file_message = "Modify json file\nadd the following to this group " + grp + "\n" + str(file_need) + "\nfound for cma : " + cma
+                    smail("JSON Add Request", file_message)
                 print("++++++++++++++++++++++++++++")
 
                 for citem in cma_need:
@@ -240,6 +259,7 @@ def check_cma(mds, cma, grp_list):
         else:
             #group does not exist on cma
             print("error 002 : group does not exist on cma ")
+            smail("error 002 on " + cma, "group " + grp + " does not exist on cma " + cma)
     #end of for loop
 
     """
@@ -276,6 +296,8 @@ def main():
     print("*" * 10)
 
     check_cma("146.18.96.16", cma_list[0], groups_to_check)
+
+    check_cma("146.18.96.16", cma_list[1], groups_to_check)
 
 
 #end of main
