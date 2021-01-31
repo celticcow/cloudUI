@@ -2,6 +2,8 @@
 
 import ipaddress
 import smtplib
+import logging
+import logging.handlers
 
 def ListDiff(li1, li2):
     return(list(list(set(li1)-set(li2)) + list(set(li2)-set(li1))))
@@ -51,6 +53,16 @@ def smail(e_message):
     
     server.quit()
 
+def sendtosyslog(message):
+    my_logger = logging.getLogger('MyLogger')
+    my_logger.setLevel(logging.INFO)
+
+    handler = logging.handlers.SysLogHandler(address='/dev/log')
+
+    my_logger.addHandler(handler)
+    my_logger.info(message)
+#end of sendtosyslog
+
 def main():
     print("testing only")
 
@@ -89,6 +101,20 @@ def main():
     print(whatami('192.168.1.1'))
     print(whatami('192.168.1.0/24'))
     print(whatami('192.168.1.5-192.168.4.5'))
+
+    #my_logger = logging.getLogger('MyLogger')
+    #my_logger.setLevel(logging.DEBUG)
+
+    #handler = logging.handlers.SysLogHandler(address='/dev/log')
+
+    #my_logger.addHandler(handler)
+
+    #my_logger.info('my_info')
+    #my_logger.debug('debug error')
+    #my_logger.critical('CRITIAL HIT')
+
+    sendtosyslog("test1")
+    sendtosyslog("test2")
 
     smail("need to add stuff\nand more stuff\nbut not too much")
     smail("BOOM")

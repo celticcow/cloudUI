@@ -5,6 +5,8 @@ import requests
 import time
 import smtplib
 import ipaddress
+import logging
+import logging.handlers
 import apifunctions
 
 #remove the InsecureRequestWarning messages
@@ -38,6 +40,8 @@ List2 has things List1 doesn't
 def ListDiff2(li1, li2):
     return(list(set(li2)-set(li1)))
 
+#end of difference set functions
+
 def smail(e_subject, e_message):
     FROM = 'greg@fedex.com'
     TO = ["gregory.dunlap@fedex.com"]
@@ -51,6 +55,16 @@ def smail(e_subject, e_message):
     server.quit()
 #end of smtp function
 
+def sendtosyslog(message):
+    my_logger = logging.getLogger('MyLogger')
+    my_logger.setLevel(logging.INFO)
+
+    handler = logging.handlers.SysLogHandler(address='/dev/log')
+
+    my_logger.addHandler(handler)
+    my_logger.info(message)
+#end of sendtosyslog
+
 def build_group_list():
     group_list = list()
     debug = 0
@@ -59,7 +73,14 @@ def build_group_list():
 
     headers = {"Accept" : "application/json"}
 
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers)
+    except:
+        ## unable to get response from the flask
+        smail("FLASK Error", "Group Sync Error : can not reach flask")
+        sendtosyslog("group_sync : error can not reach flask")
+        exit()
+
     if(response.status_code == 200):
         ##got a good reply
         group_json = response.json()
@@ -124,7 +145,6 @@ def check_cma(mds, cma, grp_list):
 
     if(debug == 1):
         print(sid)
-
 
     for grp in grp_list:
         print(grp, end="**\n")
@@ -233,24 +253,34 @@ def check_cma(mds, cma, grp_list):
                     print("--", end="")
                     print(citem)
                     print(whatami(citem))
+
+                    """
+                    need record of what's going on here.
+                    """
                     if(whatami(citem) == "host"):
                         print("adding")
                         print(citem)
                         print(" to the group " + grp)
+
+                        sendtosyslog("group_sync : adding " + citem + " host to the group + " + grp)
                         ####
                         #apifunctions.add_a_host_with_group()
                         apifunctions.add_a_host_with_group(mds, "host-"+str(citem), citem, grp, sid)
                     elif(whatami(citem) == "network"):
                         parts = citem.split('/')
+                        sendtosyslog("group_sync : adding " + citem + " network to the group + " + grp)
                         apifunctions.add_a_network_with_group(mds, "network-"+str(parts[0]), parts[0], apifunctions.calcDottedNetmask(int(parts[1])), grp, sid)
                     elif(whatami(citem) == "range"):
                         parts = citem.split('-')
+                        sendtosyslog("group_sync : adding " + citem + " address range to the group + " + grp)
                         apifunctions.add_a_range_with_group(mds, "range-"+citem, parts[0], parts[1], grp, sid)
                     else:
                         print("error 003 : not a host/network/range item")
+                        sendtosyslog("group_sync error 003 : not a host/network/range item " + citem)
             
             else:
                 print("error 001 : non 200 response code for group_contents")
+                sendtosyslog("group_sync error 001 : non 200 response code for group_contents")
 
 
             """
@@ -259,6 +289,7 @@ def check_cma(mds, cma, grp_list):
         else:
             #group does not exist on cma
             print("error 002 : group does not exist on cma ")
+            sendtosyslog("group_sync error 002 : group " + grp + " does not exist on cma " + cma)
             smail("error 002 on " + cma, "group " + grp + " does not exist on cma " + cma)
     #end of for loop
 

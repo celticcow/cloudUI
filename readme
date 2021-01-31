@@ -32,3 +32,11 @@ Group_Sync
 query flask ... get data ... query cma's
 
 try to sync them up
+
+created client test to get and update info from/to flask
+
+need to collect info on what we're doing with cma updates to consolidated log out / email ?
+--added setup to send error messages and adds to syslog
+
+Jan 31 15:29:00 wtc-464460-l group_sync : adding 40.0.0.9 host to the group + LAB-eai-1-dev
+Jan 31 15:29:34 wtc-464460-l group_sync error 002 : group LAB-eai-1-prod does not exist on cma 146.18.96.27
