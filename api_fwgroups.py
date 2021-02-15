@@ -5,7 +5,10 @@ import json
 import time
 import os
 import shutil
+import smtplib
 import pathlib
+import logging
+import logging.handlers
 
 from flask import Flask, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
@@ -45,6 +48,32 @@ def makefilebackup(file_name):
 
     shutil.copy(f1, f2)
 #end of makefilebackup
+
+def smail(e_subject, e_message):
+    FROM = 'greg@fedex.com'
+    TO = ["gregory.dunlap@fedex.com"]
+    SUBJECT = e_subject#"JSON Add Request"
+   
+    message = 'Subject: {}\n\n{}'.format(SUBJECT, e_message)
+
+    server = smtplib.SMTP('mapper.gslb.fedex.com')
+    server.sendmail(FROM, TO, message)
+    
+    server.quit()
+#end of smtp function
+
+"""
+send updates to syslog
+"""
+def sendtosyslog(message):
+    my_logger = logging.getLogger('MyLogger')
+    my_logger.setLevel(logging.INFO)
+
+    handler = logging.handlers.SysLogHandler(address='/dev/log')
+
+    my_logger.addHandler(handler)
+    my_logger.info(message)
+#end of sendtosyslog
 
 """
 return list of groups that are in teh json file 
@@ -125,6 +154,9 @@ def add_to_group():
                 print("-------------------------------------------")
 
             group_json['objects'][i]['ranges'].append(grp_data)
+
+            sendtosyslog("API_FWGROUPS : adding " + grp_data + " to group " + group_json['objects'][i]['name'])
+            smail("API_FWGROUP add", "adding " + grp_data + " to group " + group_json['objects'][i]['name'])
 
     #print(grp_name, end=" ")
     #print(grp_data)
