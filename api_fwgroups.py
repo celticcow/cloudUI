@@ -60,7 +60,7 @@ def group_list():
     result_json = {}
     result_json['group_names'] = []
     
-    with open('./example1.json', 'r') as f:
+    with open('./group1.json', 'r') as f:
         group_json = json.load(f)
     
     for i in range(len(group_json['objects'])):
@@ -86,7 +86,7 @@ def group_content():
 
     print(grp_name)
 
-    with open('./example1.json', 'r') as f:
+    with open('./group1.json', 'r') as f:
         group_json = json.load(f)
     
     for i in range(len(group_json['objects'])):
@@ -107,15 +107,13 @@ def add_to_group():
     #
     debug = 1
 
-    #garbage = {}
-
     group_json = {}
 
     group_2_add_2 = request.get_json(force=True)
     grp_name = group_2_add_2['name']
     grp_data = group_2_add_2['ip2add']
 
-    with open('./example1.json', 'r') as f:
+    with open('./group1.json', 'r') as f:
         group_json = json.load(f)
     
     for i in range(len(group_json['objects'])):
@@ -132,11 +130,10 @@ def add_to_group():
     #print(grp_data)
     print("+++++++++++++++++++++++++++++++++++++++")
 
-    makefilebackup("example1.json")
+    makefilebackup("group1.json")
 
-    with open('./example1.json', 'w') as F:
+    with open('./group1.json', 'w') as F:
         json.dump(group_json, F)
-
 
     return(group_json)
 #end of function

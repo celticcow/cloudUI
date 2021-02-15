@@ -69,7 +69,7 @@ def build_group_list():
     group_list = list()
     debug = 0
 
-    url = "http://localhost:5000/group_list"
+    url = "http://firewall.infosec.fedex.com:5000/group_list"
 
     headers = {"Accept" : "application/json"}
 
@@ -129,7 +129,7 @@ def check_cma(mds, cma, grp_list):
     debug = 0
 
     key = {}
-    with open('apirw-key.json', 'r') as f:
+    with open('main-api-fw-key.json', 'r') as f:
         key = json.load(f)
         
         if(debug == 1):
@@ -202,7 +202,7 @@ def check_cma(mds, cma, grp_list):
             ## get flask group contents : use grp_json
             flask_grp_members = {}
 
-            url = "http://localhost:5000/group_content"
+            url = "http://firewall.infosec.fedex.com:5000/group_content"
 
             headers = {"Accept" : "application/json"}
 
@@ -262,18 +262,18 @@ def check_cma(mds, cma, grp_list):
                         print(citem)
                         print(" to the group " + grp)
 
-                        sendtosyslog("group_sync : adding " + citem + " host to the group + " + grp)
+                        sendtosyslog("group_sync : adding " + citem + " host to the group + " + grp + " on cma " + cma)
                         ####
                         #apifunctions.add_a_host_with_group()
-                        apifunctions.add_a_host_with_group(mds, "host-"+str(citem), citem, grp, sid)
+                        apifunctions.add_a_host_with_group(mds, "cloudUI-host-"+str(citem), citem, grp, sid)
                     elif(whatami(citem) == "network"):
                         parts = citem.split('/')
-                        sendtosyslog("group_sync : adding " + citem + " network to the group + " + grp)
-                        apifunctions.add_a_network_with_group(mds, "network-"+str(parts[0]), parts[0], apifunctions.calcDottedNetmask(int(parts[1])), grp, sid)
+                        sendtosyslog("group_sync : adding " + citem + " network to the group + " + grp + " on cma " + cma)
+                        apifunctions.add_a_network_with_group(mds, "cloudUI-network-"+str(parts[0]), parts[0], apifunctions.calcDottedNetmask(int(parts[1])), grp, sid)
                     elif(whatami(citem) == "range"):
                         parts = citem.split('-')
-                        sendtosyslog("group_sync : adding " + citem + " address range to the group + " + grp)
-                        apifunctions.add_a_range_with_group(mds, "range-"+citem, parts[0], parts[1], grp, sid)
+                        sendtosyslog("group_sync : adding " + citem + " address range to the group + " + grp + " on cma " + cma)
+                        apifunctions.add_a_range_with_group(mds, "cloudUI-range-"+citem, parts[0], parts[1], grp, sid)
                     else:
                         print("error 003 : not a host/network/range item")
                         sendtosyslog("group_sync error 003 : not a host/network/range item " + citem)
@@ -311,7 +311,8 @@ def check_cma(mds, cma, grp_list):
 def main():
     print("")
 
-    cma_list = ["146.18.96.26","146.18.96.27"]
+    ## Dev, National
+    cma_list = ["192.168.159.155","192.168.159.167"]
     groups_to_check = list()
 
     print(cma_list)
@@ -326,9 +327,9 @@ def main():
     print(groups_to_check)
     print("*" * 10)
 
-    check_cma("146.18.96.16", cma_list[0], groups_to_check)
+    check_cma("192.168.159.150", cma_list[0], groups_to_check)
 
-    check_cma("146.18.96.16", cma_list[1], groups_to_check)
+    check_cma("192.168.159.150", cma_list[1], groups_to_check)
 
 
 #end of main
